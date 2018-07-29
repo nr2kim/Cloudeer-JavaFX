@@ -28,7 +28,6 @@ public class HomePane extends VBox {
 
     private void init() {
         try {
-            Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
             ResourceBundle resourceBundle = ResourceBundle.getBundle("properties/homepane");
             URL fxmlURL = getClass().getResource("/fxml/HomePane.fxml");
             FXMLLoader fxmlLoader = new FXMLLoader(fxmlURL, resourceBundle);
