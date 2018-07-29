@@ -12,7 +12,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 
 /**
  *
@@ -26,6 +28,7 @@ public class HomePane extends VBox {
 
     private void init() {
         try {
+            Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
             ResourceBundle resourceBundle = ResourceBundle.getBundle("properties/homepane");
             URL fxmlURL = getClass().getResource("/fxml/HomePane.fxml");
             FXMLLoader fxmlLoader = new FXMLLoader(fxmlURL, resourceBundle);
