@@ -12,7 +12,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import Home.HomeTab?>
-
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.*?>
 <fx:root fx:id="root" prefHeight="${screen.visualBounds.height/2}" minHeight="200" minWidth="200" prefWidth="${screen.visualBounds.width/2}" stylesheets="@../css/main.css" type="VBox" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen" />
@@ -20,16 +21,19 @@
     <children>
         <Pane fx:id="topPane" prefHeight="${root.height*0.08}" prefWidth="${root.width}">
             <children>
+                <TextField layoutX="${topPane.width*0.02}" layoutY="${topPane.height*0.15}" prefHeight="${topPane.height*0.7}" prefWidth="${topPane.width*0.85}">
+                    <padding><Insets left="35"/></padding>
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                </TextField>
+                <FontAwesomeIconView layoutX="${topPane.width*0.035}" layoutY="${topPane.height*0.6}" glyphName="SEARCH"></FontAwesomeIconView>
                 <Button layoutX="${topPane.width*0.92}" layoutY="${topPane.height*0.1}" mnemonicParsing="false" prefHeight="${topPane.height*0.8}" prefWidth="${topPane.width*0.08}" text="Login">
                     <font>
                        <Font size="10.0" />
                     </font>
                 </Button>
-                <TextField layoutX="${topPane.width*0.02}" layoutY="${topPane.height*0.15}" prefHeight="${topPane.height*0.7}" prefWidth="${topPane.width*0.85}">
-                    <font>
-                        <Font size="10.0" />
-                    </font>
-                </TextField>
+
             </children>
         </Pane>
         <HomeTab fx:id="homePane" prefHeight="${root.height*0.84}" prefWidth="${root.width}" tabClosingPolicy="UNAVAILABLE" />
