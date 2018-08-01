@@ -6,8 +6,12 @@
     -fx-text-fill: black;
     -fx-font-size: 10px;
  }
+ 
+ .text-field {
+     -fx-background-radius: 20px;
+ }
 
- #copyRight {
+#copyRight {
     -fx-background-color: darkgray;
  }
  
