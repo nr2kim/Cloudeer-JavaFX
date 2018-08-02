@@ -5,9 +5,13 @@
  */
 package Home;
 
-import SignIn.SignInPane;
+import com.dropbox.core.DbxAppInfo;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.DbxWebAuth;
+import com.dropbox.core.json.JsonReader;
 import java.util.Optional;
-import javafx.application.Platform;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -16,15 +20,10 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -35,7 +34,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.util.Pair;
+
 /**
  *             <tabs>
                 <Tab text="All">
@@ -151,9 +150,25 @@ public final class HomeTab extends TabPane {
                         Dialog dropboxPrompt = new Dialog();
                         WebView browser = new WebView();
                         WebEngine webEngine = browser.getEngine();
-                        webEngine.load("https://www.dropbox.com/oauth2/authorize?client_id=dn1ejzxezzcblo0&response_type=code");
-                        dropboxPrompt.getDialogPane().setExpandableContent(browser);
-                        dropboxPrompt.showAndWait();
+                        DbxRequestConfig config = DbxRequestConfig.newBuilder("Cloudeer/1.0.0")
+                            .build();
+                        TextField accessTokenField = new TextField();
+                        accessTokenField.setPromptText("access token");
+                        try {
+                            DbxAppInfo appInfo = DbxAppInfo.Reader.readFromFile("env/dbx.env");
+                            DbxWebAuth webAuth = new DbxWebAuth(config, appInfo);
+                            DbxWebAuth.Request webAuthRequest = DbxWebAuth.newRequestBuilder()
+                                .withNoRedirect()
+                                .build();
+                            String authorizeUrl = webAuth.authorize(webAuthRequest);
+                            webEngine.load(authorizeUrl);
+                            dropboxPrompt.getDialogPane().setContent(browser);
+                            ButtonType button = new ButtonType("button", ButtonData.CANCEL_CLOSE);
+                            dropboxPrompt.getDialogPane().getButtonTypes().add(button);
+                            dropboxPrompt.showAndWait();
+                        } catch (JsonReader.FileLoadException ex) {
+                            Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                     System.out.println("Username=" + buttonData);
                 });

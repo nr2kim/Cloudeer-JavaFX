@@ -31,6 +31,7 @@ repositories {
 }
 
 dependencies {
+    compile 'com.dropbox.core:dropbox-core-sdk:3.0.8'
     // TODO: Add dependencies here ...
     // You can read more about how to add dependency here:
     //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
