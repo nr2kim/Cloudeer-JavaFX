@@ -7,18 +7,15 @@ package Home;
 
 import SignIn.DropboxAuth;
 import SignIn.SignInDialog;
-import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxAuthInfo;
-import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -80,33 +77,46 @@ public final class HomeTab extends TabPane {
         }
     }
     public HomeTab() {
+        this.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
         TableView table = this.getTable(FXCollections.observableArrayList());
         Tab allTab = new Tab("All", table);
+        allTab.setClosable(false);
         Tab plusTab = new Tab("+");
+        plusTab.setClosable(false);
         plusTab.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if(isNowSelected) {
                 Dialog dialog = new SignInDialog();
                 Optional<cloudType> cloudResult = dialog.showAndWait();
 
                 cloudResult.ifPresent((cloudType buttonData) -> {
-                    if(buttonData == cloudType.dropbox) {
-                        DropboxAuth dropboxAuth = new DropboxAuth();
-                        addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles());
+                    switch (buttonData) {
+                        case dropbox:
+                            DropboxAuth dropboxAuth = new DropboxAuth();
+                            addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles());
+                            break;
+                        case googleDrive:
+                            addTab(cloudType.googleDrive, null, null);
+                            break;
+                        case oneDrive:
+                            addTab(cloudType.oneDrive, null, null);
+                            break;
+                        default:
+                            Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, buttonData);
+                            System.exit(1);
+                            break;
                     }
-                    System.out.println("Username=" + buttonData);
                 });
             }   
         });
         this.getTabs().add(allTab);
         this.getTabs().add(plusTab);
-        
         this.numTabs = 1;
     }
     
     public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FileInfo> data) {
         TableView table = this.getTable(data);
         Tab newTab = new Tab("", table);
-        
+        newTab.setClosable(true);
         ImageView img = new ImageView(type.toString());
         img.setFitHeight(20);
         img.setPreserveRatio(true);

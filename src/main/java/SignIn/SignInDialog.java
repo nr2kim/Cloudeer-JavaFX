@@ -25,6 +25,7 @@ public class SignInDialog extends Dialog {
     private cloudType chosen;
     
     public SignInDialog() {
+        this.chosen = null;
         this.setHeaderText("Supported Cloud Storage Lists");
 
         // Set the icon (must be included in the project).
@@ -65,16 +66,22 @@ public class SignInDialog extends Dialog {
 
         // Do some validation (using the Java 8 lambda syntax).
         dropboxButton.focusedProperty().addListener((observable, wasFocused, focused) -> {
-            okButtonNode.setDisable(!focused);
-            this.chosen = cloudType.dropbox;                    
+            if(focused) {
+                this.chosen = cloudType.dropbox;
+                okButtonNode.setDisable(false);
+            }
         });
         googleDriveButton.focusedProperty().addListener((observable, wasFocused, focused) -> {
-            okButtonNode.setDisable(!focused);     
-            this.chosen = cloudType.googleDrive;
+            if(focused) {
+                this.chosen = cloudType.googleDrive;
+                okButtonNode.setDisable(false);
+            }
         });
         oneDriveButton.focusedProperty().addListener((observable, wasFocused, focused) -> {
-            okButtonNode.setDisable(!focused);    
-            this.chosen = cloudType.oneDrive;
+            if(focused) {
+                this.chosen = cloudType.oneDrive;
+                okButtonNode.setDisable(false);
+            }
         });
 
         this.getDialogPane().setContent(vbox);
