@@ -5,11 +5,14 @@
  */
 package Home;
 
-import Auth.DropboxAuth;
+import SignIn.DropboxAuth;
 import SignIn.SignInDialog;
 import com.dropbox.core.DbxAuthFinish;
+import com.dropbox.core.DbxAuthInfo;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -22,6 +25,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 
 /**
  *             <tabs>
@@ -50,39 +54,72 @@ import javafx.scene.control.cell.PropertyValueFactory;
  *
  * @author t_kimka
  */
-public final class HomeTab extends TabPane {  
+public final class HomeTab extends TabPane {
+    public SortedMap<cloudType, DbxAuthInfo> allClouds;
+    public int numTabs;
     public enum cloudType {
-        dropbox,
-        googleDrive,
-        oneDrive
+        dropbox {
+            @Override
+            public String toString() {
+                return this.getClass().getResource("/img/600DropboxIconWithName.png").toString();
+            }
+        },
+
+        googleDrive {
+            @Override
+            public String toString() {
+                return this.getClass().getResource("/img/600GoogleDriveIconWithName.png").toString();
+            }
+        },
+        
+        oneDrive {
+            @Override
+            public String toString() {
+                return this.getClass().getResource("/img/600OneDriveWithName.png").toString();
+            }
+        }
     }
     public HomeTab() {
-        TableView table = this.getEmptyTable();
+        TableView table = this.getTable(FXCollections.observableArrayList());
         Tab allTab = new Tab("All", table);
         Tab plusTab = new Tab("+");
-        plusTab.setOnSelectionChanged(new EventHandler<Event>() {
-            @Override
-            public void handle(Event t) {
+        plusTab.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+            if(isNowSelected) {
                 Dialog dialog = new SignInDialog();
                 Optional<cloudType> cloudResult = dialog.showAndWait();
 
-                cloudResult.ifPresent(buttonData -> {
+                cloudResult.ifPresent((cloudType buttonData) -> {
                     if(buttonData == cloudType.dropbox) {
-                        Dialog dropboxAuth = new DropboxAuth();
-                        
+                        DropboxAuth dropboxAuth = new DropboxAuth();
+                        addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles());
                     }
                     System.out.println("Username=" + buttonData);
                 });
-                
-            }
+            }   
         });
         this.getTabs().add(allTab);
         this.getTabs().add(plusTab);
+        
+        this.numTabs = 1;
+    }
+    
+    public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FileInfo> data) {
+        TableView table = this.getTable(data);
+        Tab newTab = new Tab("", table);
+        
+        ImageView img = new ImageView(type.toString());
+        img.setFitHeight(20);
+        img.setPreserveRatio(true);
+        newTab.setGraphic(img);
+//        allClouds.put(type, authInfo);
+        this.getTabs().add(numTabs, newTab);
+        
+        numTabs++;
     }
 
-    public TableView getEmptyTable() {
+    public TableView getTable(ObservableList data) {
         TableView<FileInfo> table = new TableView<>();
-        ObservableList<FileInfo> data = FXCollections.observableArrayList();
+//        ObservableList<FileInfo> data = FXCollections.observableArrayList();
         TableColumn fileNameCol = new TableColumn("Name");
         fileNameCol.setMinWidth(100);
         fileNameCol.setCellValueFactory(
@@ -111,7 +148,7 @@ public final class HomeTab extends TabPane {
         private final SimpleIntegerProperty fileSize;
         private final SimpleStringProperty fileType;
  
-        private FileInfo(String fName, int lName, String email) {
+        public FileInfo(String fName, int lName, String email) {
             this.fileName = new SimpleStringProperty(fName);
             this.fileSize = new SimpleIntegerProperty(lName);
             this.fileType = new SimpleStringProperty(email);

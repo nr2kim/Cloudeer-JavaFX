@@ -5,9 +5,7 @@
  */
 package SignIn;
 
-import Auth.DropboxAuth;
 import Home.HomeTab.cloudType;
-import java.util.Optional;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -16,7 +14,6 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -43,17 +40,17 @@ public class SignInDialog extends Dialog {
         vbox.setAlignment(Pos.CENTER);
         vbox.setSpacing(10);
 
-        ImageView dropboxIcon = new ImageView(this.getClass().getResource("/img/600DropboxIconWithName.png").toString());
+        ImageView dropboxIcon = new ImageView(cloudType.dropbox.toString());
         dropboxIcon.setFitHeight(40);
         dropboxIcon.setPreserveRatio(true);
         Button dropboxButton = new Button("", dropboxIcon);
 
-        ImageView googleDriveIcon = new ImageView(this.getClass().getResource("/img/600GoogleDriveIconWithName.png").toString());
+        ImageView googleDriveIcon = new ImageView(cloudType.googleDrive.toString());
         googleDriveIcon.setFitHeight(40);
         googleDriveIcon.setPreserveRatio(true);
         Button googleDriveButton = new Button("", googleDriveIcon);
 
-        ImageView oneDriveIcon = new ImageView(this.getClass().getResource("/img/600OneDriveWithName.png").toString());
+        ImageView oneDriveIcon = new ImageView(cloudType.oneDrive.toString());
         oneDriveIcon.setFitHeight(40);
         oneDriveIcon.setPreserveRatio(true);
         Button oneDriveButton = new Button("", oneDriveIcon);
