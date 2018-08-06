@@ -8,6 +8,7 @@ package Home;
 import SignIn.DropboxAuth;
 import SignIn.SignInDialog;
 import com.dropbox.core.DbxAuthInfo;
+import com.dropbox.core.DbxException;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.logging.Level;
@@ -85,6 +86,7 @@ public final class HomeTab extends TabPane {
         plusTab.setClosable(false);
         plusTab.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if(isNowSelected) {
+                this.getSelectionModel().selectFirst();
                 Dialog dialog = new SignInDialog();
                 Optional<cloudType> cloudResult = dialog.showAndWait();
 
@@ -92,7 +94,16 @@ public final class HomeTab extends TabPane {
                     switch (buttonData) {
                         case dropbox:
                             DropboxAuth dropboxAuth = new DropboxAuth();
-                            addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles());
+                            Optional<String> authenticationResult = dropboxAuth.showAndWait();
+                            authenticationResult.ifPresent((String accessToken) -> {
+                                try {
+                                    if(dropboxAuth.onAuthenticated(accessToken)) {
+                                        addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles());
+                                    }
+                                } catch (DbxException ex) {
+                                    Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            });
                             break;
                         case googleDrive:
                             addTab(cloudType.googleDrive, null, null);
@@ -118,12 +129,13 @@ public final class HomeTab extends TabPane {
         Tab newTab = new Tab("", table);
         newTab.setClosable(true);
         ImageView img = new ImageView(type.toString());
-        img.setFitHeight(20);
+        img.setFitHeight(15);
         img.setPreserveRatio(true);
         newTab.setGraphic(img);
 //        allClouds.put(type, authInfo);
         this.getTabs().add(numTabs, newTab);
-        
+        this.getSelectionModel().select(newTab);
+
         numTabs++;
     }
 

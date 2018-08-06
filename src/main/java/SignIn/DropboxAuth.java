@@ -52,7 +52,6 @@ public class DropboxAuth extends Dialog {
     private DbxWebAuth webAuth;
     private DbxAppInfo appInfo;
     private DbxRequestConfig config;
-    private String accessToken;
     private DbxAuthInfo authInfo;
     private DbxAuthFinish authFinish;
     private DbxClientV2 client;
@@ -121,15 +120,7 @@ public class DropboxAuth extends Dialog {
             return null;
         });
 
-        Optional<String> authenticationResult = this.showAndWait();
-        authenticationResult.ifPresent((String accessToken) -> {
-            this.accessToken = accessToken;
-            try {
-                this.onAuthenticated();
-            } catch (DbxException ex) {
-                Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
+        
         
     }
     
@@ -184,16 +175,23 @@ public class DropboxAuth extends Dialog {
         return data;
     }
     
-    private void onAuthenticated() throws DbxException {
+    public boolean onAuthenticated(String accessToken) throws DbxException {
         
             
-        System.out.println("AccessToken=" + this.accessToken);
+        System.out.println("AccessToken=" + accessToken);
 
         try {
             authFinish = webAuth.finishFromCode(accessToken);
         } catch (DbxException ex) {
-            System.err.println("Error in DbxWebAuth.authorize: " + ex.getMessage());
-            System.exit(1); return;
+            Dialog errDialog = new Dialog();
+            errDialog.setContentText("Error in DbxWebAuth.authorize: " + ex.getMessage() 
+                    + "\n Please try again with the correct access token.");
+            ButtonType okButton = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
+            errDialog.getDialogPane().getButtonTypes().add(okButton);
+            Optional<ButtonType> err = errDialog.showAndWait();
+            if (err.get() == ButtonType.OK){
+                return false;
+            }
         }
 
         System.out.println("Authorization complete.");
@@ -215,9 +213,10 @@ public class DropboxAuth extends Dialog {
             } catch (IOException ex1) {
                 Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex1);
             }
-            System.exit(1); return;
+            return false;
         }
         this.client = new DbxClientV2(config, authFinish.getAccessToken());
+        return true;
     }
     
     public DbxAuthInfo getAuthInfo() {
