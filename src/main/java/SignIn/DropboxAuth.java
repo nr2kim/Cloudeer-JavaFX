@@ -189,7 +189,7 @@ public class DropboxAuth extends Dialog {
             ButtonType okButton = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
             errDialog.getDialogPane().getButtonTypes().add(okButton);
             Optional<ButtonType> err = errDialog.showAndWait();
-            if (err.get() == ButtonType.OK){
+            if (err.get() == okButton){                
                 return false;
             }
         }
