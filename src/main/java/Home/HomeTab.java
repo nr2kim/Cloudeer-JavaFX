@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -143,22 +144,30 @@ public final class HomeTab extends TabPane {
         TableView<FileInfo> table = new TableView<>();
 //        ObservableList<FileInfo> data = FXCollections.observableArrayList();
         TableColumn fileNameCol = new TableColumn("Name");
-        fileNameCol.setMinWidth(100);
+        TableColumn fileSizeCol = new TableColumn("Size");
+        TableColumn fileDateCol = new TableColumn("Last Modified");
+        
+        fileNameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
+        fileNameCol.setMinWidth(300);
+        fileNameCol.maxWidthProperty().bind(table.widthProperty().subtract(fileSizeCol.minWidthProperty()).subtract(fileDateCol.minWidthProperty()));
         fileNameCol.setCellValueFactory(
                 new PropertyValueFactory<>("fileName"));
  
-        TableColumn fileSizeCol = new TableColumn("Size");
+        
+        fileSizeCol.prefWidthProperty().bind(table.widthProperty().subtract(fileNameCol.widthProperty()).multiply(0.4));
         fileSizeCol.setMinWidth(100);
+        fileSizeCol.maxWidthProperty().bind(table.widthProperty().subtract(fileNameCol.widthProperty()).subtract(fileDateCol.minWidthProperty()));
         fileSizeCol.setCellValueFactory(
                 new PropertyValueFactory<>("fileSize"));
  
-        TableColumn fileTypeCol = new TableColumn("Type");
-        fileTypeCol.setMinWidth(200);
-        fileTypeCol.setCellValueFactory(
-                new PropertyValueFactory<>("fileType"));
+        
+        fileDateCol.prefWidthProperty().bind(table.widthProperty().subtract(fileNameCol.widthProperty()).subtract(fileSizeCol.widthProperty()));
+        fileDateCol.setMinWidth(200);
+        fileDateCol.setCellValueFactory(
+                new PropertyValueFactory<>("lastModified"));
  
         table.setItems(data);
-        table.getColumns().addAll(fileNameCol, fileSizeCol, fileTypeCol);
+        table.getColumns().addAll(fileNameCol, fileSizeCol, fileDateCol);
 
         table.setEditable(false);
         
@@ -167,37 +176,37 @@ public final class HomeTab extends TabPane {
     public static class FileInfo {
  
         private final SimpleStringProperty fileName;
-        private final SimpleIntegerProperty fileSize;
-        private final SimpleStringProperty fileType;
+        private final SimpleStringProperty fileSize;
+        private final SimpleStringProperty lastModified;
  
-        public FileInfo(String fName, int lName, String email) {
+        public FileInfo(String fName, String fsize, String lModified) {
             this.fileName = new SimpleStringProperty(fName);
-            this.fileSize = new SimpleIntegerProperty(lName);
-            this.fileType = new SimpleStringProperty(email);
+            this.fileSize = new SimpleStringProperty(fsize);
+            this.lastModified = new SimpleStringProperty(lModified);
         }
  
         public String getFileName() {
-            return fileName.get();
+            return this.fileName.get();
         }
  
         public void setFileName(String fName) {
-            fileName.set(fName);
+            this.fileName.set(fName);
         }
  
-        public int getFileSize() {
-            return fileSize.get();
+        public String getFileSize() {
+            return this.fileSize.get();
         }
  
-        public void setFileSize(int fSize) {
-            fileSize.set(fSize);
+        public void setFileSize(String fSize) {
+            this.fileSize.set(fSize);
         }
  
         public String getFileType() {
-            return fileType.get();
+            return this.lastModified.get();
         }
  
-        public void setFileType(String fType) {
-            fileType.set(fType);
+        public void setLastModified(String lModified) {
+            this.lastModified.set(lModified);
         }
     }
 }

@@ -17,7 +17,9 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.DbxWebAuth;
 import com.dropbox.core.json.JsonReader;
 import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.DeletedMetadata;
 import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.users.FullAccount;
@@ -29,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -144,10 +148,17 @@ public class DropboxAuth extends Dialog {
             Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
         }
         while (true) {
-            for (Metadata metadata : result.getEntries()) {
-                System.out.println(metadata.getPathLower());
-                
-                data.add(new FileInfo(metadata.getPathLower(), 0, ""));
+            for (Metadata metadata : result.getEntries()) { 
+                if ( metadata instanceof FolderMetadata ) {
+                    data.add(new FileInfo(metadata.getName(), "", ""));
+                } else if (metadata instanceof FileMetadata) {
+                    Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    data.add(new FileInfo(metadata.getName(), 
+                                            Long.toString(((FileMetadata) metadata).getSize()), 
+                                            formatter.format(((FileMetadata) metadata).getClientModified())));
+                } else if (metadata instanceof DeletedMetadata) {
+                    System.out.println(metadata);
+                }
             }
 
             if (!result.getHasMore()) {
