@@ -9,12 +9,11 @@ import SignIn.DropboxAuth;
 import SignIn.SignInDialog;
 import com.dropbox.core.DbxAuthInfo;
 import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.files.MediaInfo;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -56,6 +55,8 @@ import javafx.scene.image.ImageView;
 public final class HomeTab extends TabPane {
     public SortedMap<cloudType, DbxAuthInfo> allClouds;
     public int numTabs;
+    private DropboxAuth dropboxAuth;
+    private ObservableList<FMetadata> allTable;
     public enum cloudType {
         dropbox {
             @Override
@@ -79,8 +80,8 @@ public final class HomeTab extends TabPane {
         }
     }
     public HomeTab() {
-        this.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
-        TableView table = this.getTable(FXCollections.observableArrayList());
+        allTable = FXCollections.observableArrayList();
+        TableView table = this.getTable(allTable);
         Tab allTab = new Tab("All", table);
         allTab.setClosable(false);
         Tab plusTab = new Tab("+");
@@ -94,12 +95,12 @@ public final class HomeTab extends TabPane {
                 cloudResult.ifPresent((cloudType buttonData) -> {
                     switch (buttonData) {
                         case dropbox:
-                            DropboxAuth dropboxAuth = new DropboxAuth();
+                            this.dropboxAuth = new DropboxAuth();
                             Optional<String> authenticationResult = dropboxAuth.showAndWait();
                             authenticationResult.ifPresent((String accessToken) -> {
                                 try {
                                     if(dropboxAuth.onAuthenticated(accessToken)) {
-                                        addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles());
+                                        addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles(""));
                                     }
                                 } catch (DbxException ex) {
                                     Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
@@ -125,7 +126,7 @@ public final class HomeTab extends TabPane {
         this.numTabs = 1;
     }
     
-    public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FileInfo> data) {
+    public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FMetadata> data) {
         TableView table = this.getTable(data);
         Tab newTab = new Tab("", table);
         newTab.setClosable(true);
@@ -140,9 +141,8 @@ public final class HomeTab extends TabPane {
         numTabs++;
     }
 
-    public TableView getTable(ObservableList data) {
+    public TableView getTable(ObservableList<FMetadata> data) {
         TableView<FileInfo> table = new TableView<>();
-//        ObservableList<FileInfo> data = FXCollections.observableArrayList();
         TableColumn fileNameCol = new TableColumn("Name");
         TableColumn fileSizeCol = new TableColumn("Size");
         TableColumn fileDateCol = new TableColumn("Last Modified");
@@ -165,26 +165,54 @@ public final class HomeTab extends TabPane {
         fileDateCol.setMinWidth(200);
         fileDateCol.setCellValueFactory(
                 new PropertyValueFactory<>("lastModified"));
- 
-        table.setItems(data);
+
         table.getColumns().addAll(fileNameCol, fileSizeCol, fileDateCol);
+
+        data.stream().map((md) -> new FileInfo(md.fileName, md.fileSize, md.lastModified)).forEachOrdered((ri) -> {
+            System.out.println(ri.getFileName() + " " + ri.getFileSize());
+            table.getItems().add(ri);
+        });
+        
+        table.getSelectionModel().selectedIndexProperty().addListener((obj, oldSelection, newSelection) -> {
+            if (data.get((int) newSelection).isFolder) {
+                ObservableList<FMetadata> allSubFiles = dropboxAuth.getFiles(data.get((int) newSelection).fullPath);
+                System.out.println(allSubFiles.get(0).fileName);
+            }
+        });
 
         table.setEditable(false);
         
         return table;
     }
+    
+    public static class FMetadata {
+        public final String fileName;
+        public final String fileSize;
+        public final String lastModified;
+        public final Boolean isFolder;
+        public final MediaInfo isMedia;
+        public final String fullPath;
+        
+        public FMetadata(String fName, String fsize, String lModified, Boolean isF, MediaInfo isM, String fPath) {
+            this.fileName = fName;
+            this.fileSize = fsize;
+            this.lastModified = lModified;
+            this.isFolder = isF;
+            this.isMedia = isM;
+            this.fullPath = fPath;
+        }
+    }
+    
     public static class FileInfo {
- 
         private final SimpleStringProperty fileName;
         private final SimpleStringProperty fileSize;
         private final SimpleStringProperty lastModified;
- 
+        
         public FileInfo(String fName, String fsize, String lModified) {
             this.fileName = new SimpleStringProperty(fName);
             this.fileSize = new SimpleStringProperty(fsize);
             this.lastModified = new SimpleStringProperty(lModified);
         }
- 
         public String getFileName() {
             return this.fileName.get();
         }

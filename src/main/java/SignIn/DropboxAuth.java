@@ -7,8 +7,7 @@ package SignIn;
  */
 
 import Home.HomeTab;
-import Home.HomeTab.FileInfo;
-import Home.HomeTab.cloudType;
+import Home.HomeTab.FMetadata;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxAuthInfo;
@@ -25,10 +24,7 @@ import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.users.FullAccount;
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.Format;
@@ -128,8 +124,8 @@ public class DropboxAuth extends Dialog {
         
     }
     
-    public ObservableList<FileInfo> getFiles() {
-        ObservableList<FileInfo> data = FXCollections.observableArrayList();
+    public ObservableList<FMetadata> getFiles(String path) {
+        ObservableList<FMetadata> md = FXCollections.observableArrayList();
         // Get current account info
         FullAccount account = null;
         try {
@@ -143,19 +139,23 @@ public class DropboxAuth extends Dialog {
         // Get files and folder metadata from Dropbox root directory
         ListFolderResult result = null;
         try {
-            result = client.files().listFolder("");
+            result = client.files().listFolder(path);
         } catch (DbxException ex) {
             Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
         }
         while (true) {
             for (Metadata metadata : result.getEntries()) { 
                 if ( metadata instanceof FolderMetadata ) {
-                    data.add(new FileInfo(metadata.getName(), "", ""));
+                    md.add(new FMetadata(
+                            metadata.getName(), "", "", true, null, metadata.getPathLower()));
                 } else if (metadata instanceof FileMetadata) {
                     Format formatter = new SimpleDateFormat("yyyy-MM-dd");
-                    data.add(new FileInfo(metadata.getName(), 
-                                            Long.toString(((FileMetadata) metadata).getSize()), 
-                                            formatter.format(((FileMetadata) metadata).getClientModified())));
+                    md.add(new FMetadata(
+                            metadata.getName(),
+                            Long.toString(((FileMetadata) metadata).getSize()), 
+                            formatter.format(((FileMetadata) metadata).getClientModified()), 
+                            false, 
+                            ((FileMetadata) metadata).getMediaInfo(), metadata.getPathLower()));
                 } else if (metadata instanceof DeletedMetadata) {
                     System.out.println(metadata);
                 }
@@ -183,7 +183,7 @@ public class DropboxAuth extends Dialog {
 //            Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 
-        return data;
+        return md;
     }
     
     public boolean onAuthenticated(String accessToken) throws DbxException {
