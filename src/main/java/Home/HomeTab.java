@@ -21,33 +21,11 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
-/**
- *             <tabs>
-                <Tab text="All">
-                    <TableView fx:id="treeTableView">
-                        <columns>
-                            <TableColumn fx:id="name"
-                                                minWidth="${homePane.width*0.2}" maxWidth="${homePane.width*0.85}" text="Name" prefWidth="${homePane.width*0.7}"
-                                                resizable="true"></TableColumn>
-                            <TableColumn fx:id="size" text="Size"
-                                                minWidth="${homePane.width*0.075}" prefWidth="${(homePane.width-name.width)/2}"
-                                                resizable="true">
-                            </TableColumn>
-                            <TableColumn fx:id="type" text="Type"
-                                                minWidth="${homePane.width*0.075}" prefWidth="${(homePane.width-name.width)/2}"
-                                                resizable="true">
-                            </TableColumn>
-                        </columns>
-                    </TableView>
-                </Tab>
-                <Tab text="+" />
-            </tabs>
-
- */
 /**
  *
  * @author t_kimka
@@ -56,7 +34,7 @@ public final class HomeTab extends TabPane {
     public SortedMap<cloudType, DbxAuthInfo> allClouds;
     public int numTabs;
     private DropboxAuth dropboxAuth;
-    private ObservableList<FMetadata> allTable;
+    private ObservableList<ObservableList<FMetadata>> allMetadata;
     public enum cloudType {
         dropbox {
             @Override
@@ -80,9 +58,11 @@ public final class HomeTab extends TabPane {
         }
     }
     public HomeTab() {
-        allTable = FXCollections.observableArrayList();
-        TableView table = this.getTable(allTable);
-        Tab allTab = new Tab("All", table);
+        allMetadata = FXCollections.observableArrayList();
+        this.allMetadata.add(0, FXCollections.observableArrayList());
+        TableView allTable = this.getTable(this.allMetadata.get(0));
+        
+        Tab allTab = new Tab("All", allTable);
         allTab.setClosable(false);
         Tab plusTab = new Tab("+");
         plusTab.setClosable(false);
@@ -128,7 +108,31 @@ public final class HomeTab extends TabPane {
     
     public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FMetadata> data) {
         TableView table = this.getTable(data);
+
         Tab newTab = new Tab("", table);
+        table.setRowFactory(tv -> {
+            TableRow<FileInfo> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (! row.isEmpty()) && data.get(row.getIndex()).isFolder ) {
+                    ObservableList<FMetadata> allSubFiles = dropboxAuth.getFiles(data.get(row.getIndex()).fullPath);
+                    TableView subTable = this.getTable(allSubFiles);
+                    FileInfo toParentDir = new FileInfo("...", "", "");
+                    subTable.setRowFactory(subt -> {
+                        TableRow<FileInfo> subr = new TableRow<>();
+                        subr.setOnMouseClicked(subrEvent -> {
+                            if(subr.getIndex() == 0) {
+                                newTab.setContent(table);
+                            }
+                        });
+                        
+                        return subr;
+                    });
+                    subTable.getItems().add(0, toParentDir);
+                    newTab.setContent(subTable);
+                }
+            });
+            return row ;
+        });
         newTab.setClosable(true);
         ImageView img = new ImageView(type.toString());
         img.setFitHeight(15);
@@ -136,6 +140,13 @@ public final class HomeTab extends TabPane {
         newTab.setGraphic(img);
 //        allClouds.put(type, authInfo);
         this.getTabs().add(numTabs, newTab);
+        this.allMetadata.add(numTabs, data);
+        
+        // Update allTable
+        this.allMetadata.get(0).addAll(data);
+        TableView allTable = this.getTable(this.allMetadata.get(0));
+        this.getTabs().get(0).setContent(allTable);
+        
         this.getSelectionModel().select(newTab);
 
         numTabs++;
@@ -169,15 +180,7 @@ public final class HomeTab extends TabPane {
         table.getColumns().addAll(fileNameCol, fileSizeCol, fileDateCol);
 
         data.stream().map((md) -> new FileInfo(md.fileName, md.fileSize, md.lastModified)).forEachOrdered((ri) -> {
-            System.out.println(ri.getFileName() + " " + ri.getFileSize());
             table.getItems().add(ri);
-        });
-        
-        table.getSelectionModel().selectedIndexProperty().addListener((obj, oldSelection, newSelection) -> {
-            if (data.get((int) newSelection).isFolder) {
-                ObservableList<FMetadata> allSubFiles = dropboxAuth.getFiles(data.get((int) newSelection).fullPath);
-                System.out.println(allSubFiles.get(0).fileName);
-            }
         });
 
         table.setEditable(false);
