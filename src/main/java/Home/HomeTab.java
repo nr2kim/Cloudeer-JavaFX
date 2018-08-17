@@ -10,6 +10,7 @@ import SignIn.SignInDialog;
 import com.dropbox.core.DbxAuthInfo;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.MediaInfo;
+import java.util.Date;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.logging.Level;
@@ -17,6 +18,8 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -25,6 +28,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -60,12 +64,11 @@ public final class HomeTab extends TabPane {
     public HomeTab() {
         allMetadata = FXCollections.observableArrayList();
         this.allMetadata.add(0, FXCollections.observableArrayList());
-        TableView allTable = this.getTable(this.allMetadata.get(0));
         
-        Tab allTab = new Tab("All", allTable);
-        allTab.setClosable(false);
+        Tab allTab = new Tab("All");
+        this.setTable(allTab, this.allMetadata.get(0));
+
         Tab plusTab = new Tab("+");
-        plusTab.setClosable(false);
         plusTab.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if(isNowSelected) {
                 this.getSelectionModel().selectFirst();
@@ -107,52 +110,28 @@ public final class HomeTab extends TabPane {
     }
     
     public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FMetadata> data) {
-        TableView table = this.getTable(data);
 
-        Tab newTab = new Tab("", table);
-        table.setRowFactory(tv -> {
-            TableRow<FileInfo> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) && data.get(row.getIndex()).isFolder ) {
-                    ObservableList<FMetadata> allSubFiles = dropboxAuth.getFiles(data.get(row.getIndex()).fullPath);
-                    TableView subTable = this.getTable(allSubFiles);
-                    FileInfo toParentDir = new FileInfo("...", "", "");
-                    subTable.setRowFactory(subt -> {
-                        TableRow<FileInfo> subr = new TableRow<>();
-                        subr.setOnMouseClicked(subrEvent -> {
-                            if(subr.getIndex() == 0) {
-                                newTab.setContent(table);
-                            }
-                        });
-                        
-                        return subr;
-                    });
-                    subTable.getItems().add(0, toParentDir);
-                    newTab.setContent(subTable);
-                }
-            });
-            return row ;
-        });
+        Tab newTab = new Tab("");
+        
         newTab.setClosable(true);
         ImageView img = new ImageView(type.toString());
         img.setFitHeight(15);
         img.setPreserveRatio(true);
         newTab.setGraphic(img);
-//        allClouds.put(type, authInfo);
+        this.setTable(newTab, data);
         this.getTabs().add(numTabs, newTab);
         this.allMetadata.add(numTabs, data);
         
         // Update allTable
         this.allMetadata.get(0).addAll(data);
-        TableView allTable = this.getTable(this.allMetadata.get(0));
-        this.getTabs().get(0).setContent(allTable);
+        this.setTable(this.getTabs().get(0), this.allMetadata.get(0));
         
         this.getSelectionModel().select(newTab);
 
         numTabs++;
     }
 
-    public TableView getTable(ObservableList<FMetadata> data) {
+    public void setTable(Tab tab, ObservableList<FMetadata> data) {
         TableView<FileInfo> table = new TableView<>();
         TableColumn fileNameCol = new TableColumn("Name");
         TableColumn fileSizeCol = new TableColumn("Size");
@@ -179,13 +158,38 @@ public final class HomeTab extends TabPane {
 
         table.getColumns().addAll(fileNameCol, fileSizeCol, fileDateCol);
 
-        data.stream().map((md) -> new FileInfo(md.fileName, md.fileSize, md.lastModified)).forEachOrdered((ri) -> {
+        data.forEach((md) -> {
+            FileInfo ri = new FileInfo(md.fileName, md.fileSize, md.lastModified);
             table.getItems().add(ri);
         });
-
+        table.setOnMousePressed(new EventHandler<MouseEvent>() {
+            EventTarget previousTarget = null;
+            Date lastClickTime = new Date();
+            @Override 
+            public void handle(MouseEvent event) {
+                Date now = new Date();
+                long diff = now.getTime() - lastClickTime.getTime();
+                if (event.isPrimaryButtonDown() && previousTarget == event.getTarget() && diff < 300) {
+                    int rowIndex = table.getSelectionModel().getSelectedIndex();
+                    if (data.get(rowIndex).isFolder == true) {
+                        String path = data.get(rowIndex).fullPath;
+                        ObservableList<FMetadata> allSubFiles = dropboxAuth.getFiles(path);
+                        int index= path.lastIndexOf("/");
+                        if(index >= 0) {
+                            String parentPath = path.substring(0, index);
+                            FMetadata toParentDir = new FMetadata("...", "", "", true, null, parentPath);
+                            allSubFiles.add(0, toParentDir);
+                        }
+                        setTable(tab, allSubFiles);
+                    }
+                } else if (event.isPrimaryButtonDown()) {
+                    previousTarget = event.getTarget();
+                    lastClickTime = new Date();
+                }
+            }
+        });
         table.setEditable(false);
-        
-        return table;
+        tab.setContent(table);
     }
     
     public static class FMetadata {

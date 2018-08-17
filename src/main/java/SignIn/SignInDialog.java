@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package SignIn;
 
 import Home.HomeTab.cloudType;
@@ -45,16 +40,19 @@ public class SignInDialog extends Dialog {
         dropboxIcon.setFitHeight(40);
         dropboxIcon.setPreserveRatio(true);
         Button dropboxButton = new Button("", dropboxIcon);
+        dropboxButton.setPrefWidth(300);
 
         ImageView googleDriveIcon = new ImageView(cloudType.googleDrive.toString());
         googleDriveIcon.setFitHeight(40);
         googleDriveIcon.setPreserveRatio(true);
         Button googleDriveButton = new Button("", googleDriveIcon);
+        googleDriveButton.setPrefWidth(300);
 
         ImageView oneDriveIcon = new ImageView(cloudType.oneDrive.toString());
         oneDriveIcon.setFitHeight(40);
         oneDriveIcon.setPreserveRatio(true);
         Button oneDriveButton = new Button("", oneDriveIcon);
+        oneDriveButton.setPrefWidth(300);
 
         vbox.getChildren().add(dropboxButton);
         vbox.getChildren().add(googleDriveButton);
