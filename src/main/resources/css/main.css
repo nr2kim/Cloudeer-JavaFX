@@ -7,8 +7,12 @@
     -fx-font-size: 10px;
  }
  
- .text-field {
+ #searchBar {
      -fx-background-radius: 20px;
+ }
+ 
+ #searchBar .fail {
+     -fx-background-color: -colour-search-fail;
  }
 
 #copyRight {
@@ -17,4 +21,10 @@
  
  #copyRightText {
     -fx-text-fill: white;
+ }
+ 
+ #searchResult {
+     -fx-font-size: 10px;
+     -fx-background-color: transparent;
+     -fx-border-color: transparent;
  }

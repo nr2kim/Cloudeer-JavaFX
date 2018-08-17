@@ -24,7 +24,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
@@ -38,7 +37,7 @@ public final class HomeTab extends TabPane {
     public SortedMap<cloudType, DbxAuthInfo> allClouds;
     public int numTabs;
     private DropboxAuth dropboxAuth;
-    private ObservableList<ObservableList<FMetadata>> allMetadata;
+    public static ObservableList<ObservableList<FMetadata>> allMetadata;
     public enum cloudType {
         dropbox {
             @Override

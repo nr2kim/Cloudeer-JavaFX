@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -12,6 +13,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import Home.HomeTab?>
+<?import Home.SearchBar?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.*?>
 <fx:root fx:id="root" prefHeight="${screen.visualBounds.height/2}" minHeight="200" minWidth="200" prefWidth="${screen.visualBounds.width/2}" stylesheets="@../css/main.css" type="VBox" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
@@ -21,14 +23,17 @@
     <children>
         <Pane fx:id="topPane" prefHeight="45" prefWidth="${root.width}">
             <children>
-                <TextField layoutX="20" layoutY="10" prefHeight="25" prefWidth="${topPane.width*0.85}">
+                <SearchBar fx:id="searchBar" layoutX="20" layoutY="10" prefHeight="25" prefWidth="${topPane.width*0.7}">
                     <padding><Insets left="40"/></padding>
                     <font>
                         <Font size="12.0" />
                     </font>
-                </TextField>
+                </SearchBar>
                 <FontAwesomeIconView layoutX="35" layoutY="27.5" glyphName="SEARCH"></FontAwesomeIconView>
-                <Button layoutX="${topPane.width-topPane.width*0.1}" layoutY="${topPane.height*0.1}" mnemonicParsing="false" prefHeight="${topPane.height*0.8}" prefWidth="${topPane.width*0.08}" text="Login">
+                <FontAwesomeIconView layoutX="${topPane.width*0.7 + 30}" layoutY="27.5" glyphName="ANGLE_UP"></FontAwesomeIconView>
+                <FontAwesomeIconView layoutX="${topPane.width*0.7 + 45}" layoutY="27.5" glyphName="ANGLE_DOWN"></FontAwesomeIconView>
+                <TextField fx:id="searchResult" layoutX="${topPane.width*0.7 + 55}" layoutY="12">0 out of 0 matches</TextField>
+                <Button layoutX="${topPane.width-topPane.width*0.07}" layoutY="${topPane.height*0.1}" mnemonicParsing="false" prefHeight="${topPane.height*0.8}" prefWidth="${topPane.width*0.08}" text="Login">
                     <font>
                        <Font size="10.0" />
                     </font>
