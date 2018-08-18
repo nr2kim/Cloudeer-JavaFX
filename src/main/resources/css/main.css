@@ -6,7 +6,10 @@
     -fx-text-fill: black;
     -fx-font-size: 10px;
  }
- 
+
+ .selected {
+     -fx-background-color: aquamarine;
+ }
  #searchBar {
      -fx-background-radius: 20px;
  }

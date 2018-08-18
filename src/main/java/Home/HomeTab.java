@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,8 +36,9 @@ import javafx.scene.input.MouseEvent;
  */
 public final class HomeTab extends TabPane {
     public SortedMap<cloudType, DbxAuthInfo> allClouds;
-    public int numTabs;
+    public ObservableList<cloudType> tabsCloud;
     private DropboxAuth dropboxAuth;
+    public ObservableList<FMetadata> allTabData;
     public static ObservableList<ObservableList<FMetadata>> allMetadata;
     public enum cloudType {
         dropbox {
@@ -61,11 +63,11 @@ public final class HomeTab extends TabPane {
         }
     }
     public HomeTab() {
+        this.allTabData = FXCollections.observableArrayList();
+        this.tabsCloud = FXCollections.observableArrayList();
         allMetadata = FXCollections.observableArrayList();
-        this.allMetadata.add(0, FXCollections.observableArrayList());
-        
         Tab allTab = new Tab("All");
-        this.setTable(allTab, this.allMetadata.get(0));
+        this.setTable(allTab, this.allTabData);
 
         Tab plusTab = new Tab("+");
         plusTab.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
@@ -105,29 +107,25 @@ public final class HomeTab extends TabPane {
         });
         this.getTabs().add(allTab);
         this.getTabs().add(plusTab);
-        this.numTabs = 1;
     }
     
     public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FMetadata> data) {
-
         Tab newTab = new Tab("");
-        
+        this.tabsCloud.add(type);
         newTab.setClosable(true);
         ImageView img = new ImageView(type.toString());
         img.setFitHeight(15);
         img.setPreserveRatio(true);
         newTab.setGraphic(img);
         this.setTable(newTab, data);
-        this.getTabs().add(numTabs, newTab);
-        this.allMetadata.add(numTabs, data);
+        this.getTabs().add(tabsCloud.size(), newTab);
         
         // Update allTable
-        this.allMetadata.get(0).addAll(data);
-        this.setTable(this.getTabs().get(0), this.allMetadata.get(0));
+        this.allTabData.addAll(data);
+        allMetadata.add(data);
+        this.setTable(this.getTabs().get(0), this.allTabData);
         
         this.getSelectionModel().select(newTab);
-
-        numTabs++;
     }
 
     public void setTable(Tab tab, ObservableList<FMetadata> data) {
@@ -158,7 +156,7 @@ public final class HomeTab extends TabPane {
         table.getColumns().addAll(fileNameCol, fileSizeCol, fileDateCol);
 
         data.forEach((md) -> {
-            FileInfo ri = new FileInfo(md.fileName, md.fileSize, md.lastModified);
+            FileInfo ri = new FileInfo(md.cloud, md.fileName, md.fileSize, md.lastModified);
             table.getItems().add(ri);
         });
         table.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -172,13 +170,24 @@ public final class HomeTab extends TabPane {
                     int rowIndex = table.getSelectionModel().getSelectedIndex();
                     if (data.get(rowIndex).isFolder == true) {
                         String path = data.get(rowIndex).fullPath;
-                        ObservableList<FMetadata> allSubFiles = dropboxAuth.getFiles(path);
                         int index= path.lastIndexOf("/");
-                        if(index >= 0) {
-                            String parentPath = path.substring(0, index);
-                            FMetadata toParentDir = new FMetadata("...", "", "", true, null, parentPath);
-                            allSubFiles.add(0, toParentDir);
+                        ObservableList<FMetadata> allSubFiles;
+                        
+                        switch (data.get(rowIndex).cloud) {
+                            case dropbox:
+                                allSubFiles = dropboxAuth.getFiles(path);
+                                if(index >= 0) {
+                                    String parentPath = path.substring(0, index);
+                                    FMetadata toParentDir = new FMetadata(cloudType.dropbox, "...", "", "", true, null, parentPath);
+                                    allSubFiles.add(0, toParentDir);
+                                }   break;
+                            case googleDrive:
+                            case oneDrive:
+                            default:
+                                allSubFiles = FXCollections.observableArrayList();
+                                break;
                         }
+                        
                         setTable(tab, allSubFiles);
                     }
                 } else if (event.isPrimaryButtonDown()) {
@@ -192,6 +201,7 @@ public final class HomeTab extends TabPane {
     }
     
     public static class FMetadata {
+        public final cloudType cloud;
         public final String fileName;
         public final String fileSize;
         public final String lastModified;
@@ -199,7 +209,8 @@ public final class HomeTab extends TabPane {
         public final MediaInfo isMedia;
         public final String fullPath;
         
-        public FMetadata(String fName, String fsize, String lModified, Boolean isF, MediaInfo isM, String fPath) {
+        public FMetadata(cloudType ct, String fName, String fsize, String lModified, Boolean isF, MediaInfo isM, String fPath) {
+            this.cloud = ct;
             this.fileName = fName;
             this.fileSize = fsize;
             this.lastModified = lModified;
@@ -210,11 +221,14 @@ public final class HomeTab extends TabPane {
     }
     
     public static class FileInfo {
+        // All are properties for binding purposes (observables)
+        private final SimpleObjectProperty<cloudType> cloud;
         private final SimpleStringProperty fileName;
         private final SimpleStringProperty fileSize;
         private final SimpleStringProperty lastModified;
         
-        public FileInfo(String fName, String fsize, String lModified) {
+        public FileInfo(cloudType ct, String fName, String fsize, String lModified) {
+            this.cloud = new SimpleObjectProperty(ct);
             this.fileName = new SimpleStringProperty(fName);
             this.fileSize = new SimpleStringProperty(fsize);
             this.lastModified = new SimpleStringProperty(lModified);

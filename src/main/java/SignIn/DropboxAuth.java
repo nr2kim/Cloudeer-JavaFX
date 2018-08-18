@@ -8,6 +8,7 @@ package SignIn;
 
 import Home.HomeTab;
 import Home.HomeTab.FMetadata;
+import Home.HomeTab.cloudType;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxAuthInfo;
@@ -134,7 +135,6 @@ public class DropboxAuth extends Dialog {
             Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
-        System.out.println(account.getName().getDisplayName());
 
         // Get files and folder metadata from Dropbox root directory
         ListFolderResult result = null;
@@ -147,10 +147,13 @@ public class DropboxAuth extends Dialog {
             for (Metadata metadata : result.getEntries()) { 
                 if ( metadata instanceof FolderMetadata ) {
                     md.add(new FMetadata(
-                            metadata.getName(), "", "", true, null, metadata.getPathLower()));
+                            cloudType.dropbox,
+                            metadata.getName(), "", "", true, null,
+                            metadata.getPathLower()));
                 } else if (metadata instanceof FileMetadata) {
                     Format formatter = new SimpleDateFormat("yyyy-MM-dd");
                     md.add(new FMetadata(
+                            cloudType.dropbox,
                             metadata.getName(),
                             Long.toString(((FileMetadata) metadata).getSize()), 
                             formatter.format(((FileMetadata) metadata).getClientModified()), 
