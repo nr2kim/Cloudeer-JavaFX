@@ -4,14 +4,17 @@
     -fx-border-color: transparent;
     -fx-background-color: transparent;
     -fx-text-fill: black;
-    -fx-font-size: 10px;
+    -fx-font-size: 1000px;
  }
 
  .selected {
      -fx-background-color: aquamarine;
  }
- #searchBar {
+ 
+ .searchBar {
      -fx-background-radius: 20px;
+     -fx-padding: 0 0 0 40px;
+     -fx-font-size: 10px;
  }
  
  #searchBar .fail {
@@ -22,11 +25,11 @@
     -fx-background-color: darkgray;
  }
  
- #copyRightText {
-    -fx-text-fill: white;
+ .copyRightText {
+     -fx-text-fill: white;
  }
  
- #searchResult {
+ .searchResult {
      -fx-font-size: 10px;
      -fx-background-color: transparent;
      -fx-border-color: transparent;

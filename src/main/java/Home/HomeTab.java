@@ -63,6 +63,9 @@ public final class HomeTab extends TabPane {
         }
     }
     public HomeTab() {
+        this.setPrefHeight(Home.homeScreen.getHeight() - 40);
+        this.setPrefWidth(Home.homeScreen.getWidth());
+        this.tabClosingPolicyProperty().set(TabClosingPolicy.UNAVAILABLE);
         this.allTabData = FXCollections.observableArrayList();
         this.tabsCloud = FXCollections.observableArrayList();
         allMetadata = FXCollections.observableArrayList();

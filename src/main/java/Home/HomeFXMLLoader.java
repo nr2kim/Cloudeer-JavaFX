@@ -17,9 +17,9 @@ import javafx.scene.layout.VBox;
  *
  * @author t_kimka
  */
-public class HomePane extends VBox {
+public class HomeFXMLLoader extends VBox {
 
-    public HomePane() {
+    public HomeFXMLLoader() {
         init();
     }
 
@@ -31,7 +31,7 @@ public class HomePane extends VBox {
             fxmlLoader.setController(this);
             fxmlLoader.load();
         } catch (IOException ex) {
-            Logger.getLogger(HomePane.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(HomeFXMLLoader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
