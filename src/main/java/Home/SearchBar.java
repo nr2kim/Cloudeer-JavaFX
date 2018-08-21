@@ -7,6 +7,7 @@ package Home;
 
 import Home.HomeTab.FMetadata;
 import Home.HomeTab.FileInfo;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.TableView;
@@ -18,7 +19,7 @@ import javafx.scene.input.MouseEvent;
  * @author t_kimka
  */
 public class SearchBar extends TextField {
-    public SearchBar(HomeTab ht, SearchResult sr) {
+    public SearchBar(OptionalPane op, SearchResult sr) {
         super();
         this.getStyleClass().add("searchBar");
         
@@ -31,22 +32,34 @@ public class SearchBar extends TextField {
             System.out.println(newVal);
             
             if(!newVal.isEmpty()) {
-                int result = 0;
+                ObservableList<FMetadata> result = FXCollections.observableArrayList();
                 for (int i = 0; i < HomeTab.allMetadata.size(); i++ ){ 
                     ObservableList<FMetadata> tab = HomeTab.allMetadata.get(i);
                     final int tabIndex = i;
                     for(int j = 0; j < tab.size(); j++ ) {
                         FMetadata md = tab.get(j);
-                        if ( md.fileName.contains(newVal)) {
-                            result++;
-                            System.out.println(md.cloud + " " + md.fileName + " " + md.fileSize);
-                            final FileInfo myFile = new FileInfo(md.cloud, md.fileName, md.fileSize, md.lastModified);
-//                            ht.show
-                            sr.showResult(result);
-                        }
+                        this.checkFolder(result, md, newVal);
                     }
                 }
+                sr.showResult(result.size());
+                op.showOptionalPane(result);
+            } else {
+                op.hideOptionalPane();
             }
         });
+    }
+    
+    public void checkFolder(ObservableList<FMetadata> result, FMetadata md, String str) {
+        if(md.children != null) {
+            md.children.forEach((cList) -> {
+                if (cList.fullPath != md.fullPath) {
+                    this.checkFolder(result, cList, str);                
+                }
+            });
+        }
+        
+        if(md.fileName.toLowerCase().contains(str.toLowerCase())) {
+            result.add(md);
+        }
     }
 }

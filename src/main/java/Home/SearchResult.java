@@ -23,6 +23,6 @@ public class SearchResult extends TextField {
     }
     
     public void showResult(int r) {
-        this.setText(r + " out of " + HomeTab.allMetadata.size() + " matches");
+        this.setText(r + " found" );
     }
 }

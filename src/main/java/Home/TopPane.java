@@ -16,13 +16,13 @@ import javafx.scene.layout.Pane;
  */
 public class TopPane extends Pane {
 
-    public TopPane(HomeTab ht) {
+    public TopPane(OptionalPane op) {
         super();
         this.setPrefHeight(40);
         this.setPrefWidth(Home.homeScreen.getWidth());
         
         SearchResult sr = new SearchResult();
-        SearchBar sb = new SearchBar(ht, sr);
+        SearchBar sb = new SearchBar(op, sr);
         FontAwesomeIconView searchIcon = new FontAwesomeIconView(FontAwesomeIcon.SEARCH);
         searchIcon.setLayoutX(35);
         searchIcon.setLayoutY(24);

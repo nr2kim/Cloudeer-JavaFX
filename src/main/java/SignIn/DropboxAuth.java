@@ -146,9 +146,14 @@ public class DropboxAuth extends Dialog {
         while (true) {
             for (Metadata metadata : result.getEntries()) { 
                 if ( metadata instanceof FolderMetadata ) {
+                    ObservableList<FMetadata> subDir = this.getFiles(metadata.getPathLower());
+                    subDir.add(0, new FMetadata(
+                            cloudType.dropbox,
+                            "...", "", "", md, null,
+                            metadata.getPathLower()));
                     md.add(new FMetadata(
                             cloudType.dropbox,
-                            metadata.getName(), "", "", true, null,
+                            metadata.getName(), "", "", subDir, null,
                             metadata.getPathLower()));
                 } else if (metadata instanceof FileMetadata) {
                     Format formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -157,7 +162,7 @@ public class DropboxAuth extends Dialog {
                             metadata.getName(),
                             Long.toString(((FileMetadata) metadata).getSize()), 
                             formatter.format(((FileMetadata) metadata).getClientModified()), 
-                            false, 
+                            null, 
                             ((FileMetadata) metadata).getMediaInfo(), metadata.getPathLower()));
                 } else if (metadata instanceof DeletedMetadata) {
                     System.out.println(metadata);

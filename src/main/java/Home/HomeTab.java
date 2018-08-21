@@ -87,7 +87,7 @@ public final class HomeTab extends TabPane {
                             authenticationResult.ifPresent((String accessToken) -> {
                                 try {
                                     if(dropboxAuth.onAuthenticated(accessToken)) {
-                                        addTab(cloudType.dropbox, dropboxAuth.getAuthInfo(), dropboxAuth.getFiles(""));
+                                        addTab(cloudType.dropbox, dropboxAuth.getFiles(""));
                                     }
                                 } catch (DbxException ex) {
                                     Logger.getLogger(DropboxAuth.class.getName()).log(Level.SEVERE, null, ex);
@@ -95,10 +95,10 @@ public final class HomeTab extends TabPane {
                             });
                             break;
                         case googleDrive:
-                            addTab(cloudType.googleDrive, null, null);
+                            addTab(cloudType.googleDrive, null);
                             break;
                         case oneDrive:
-                            addTab(cloudType.oneDrive, null, null);
+                            addTab(cloudType.oneDrive, null);
                             break;
                         default:
                             Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, buttonData);
@@ -112,7 +112,7 @@ public final class HomeTab extends TabPane {
         this.getTabs().add(plusTab);
     }
     
-    public void addTab(cloudType type, DbxAuthInfo authInfo, ObservableList<FMetadata> data) {
+    public void addTab(cloudType type, ObservableList<FMetadata> data) {
         Tab newTab = new Tab("");
         this.tabsCloud.add(type);
         newTab.setClosable(true);
@@ -125,7 +125,7 @@ public final class HomeTab extends TabPane {
         
         // Update allTable
         this.allTabData.addAll(data);
-        allMetadata.add(data);
+        allMetadata.addAll(data);
         this.setTable(this.getTabs().get(0), this.allTabData);
         
         this.getSelectionModel().select(newTab);
@@ -171,26 +171,8 @@ public final class HomeTab extends TabPane {
                 long diff = now.getTime() - lastClickTime.getTime();
                 if (event.isPrimaryButtonDown() && previousTarget == event.getTarget() && diff < 300) {
                     int rowIndex = table.getSelectionModel().getSelectedIndex();
-                    if (data.get(rowIndex).isFolder == true) {
-                        String path = data.get(rowIndex).fullPath;
-                        int index= path.lastIndexOf("/");
-                        ObservableList<FMetadata> allSubFiles;
-                        
-                        switch (data.get(rowIndex).cloud) {
-                            case dropbox:
-                                allSubFiles = dropboxAuth.getFiles(path);
-                                if(index >= 0) {
-                                    String parentPath = path.substring(0, index);
-                                    FMetadata toParentDir = new FMetadata(cloudType.dropbox, "...", "", "", true, null, parentPath);
-                                    allSubFiles.add(0, toParentDir);
-                                }   break;
-                            case googleDrive:
-                            case oneDrive:
-                            default:
-                                allSubFiles = FXCollections.observableArrayList();
-                                break;
-                        }
-                        
+                    if (data.get(rowIndex).children != null) {
+                        ObservableList<FMetadata> allSubFiles = data.get(rowIndex).children;
                         setTable(tab, allSubFiles);
                     }
                 } else if (event.isPrimaryButtonDown()) {
@@ -208,16 +190,16 @@ public final class HomeTab extends TabPane {
         public final String fileName;
         public final String fileSize;
         public final String lastModified;
-        public final Boolean isFolder;
+        public final ObservableList<FMetadata> children;
         public final MediaInfo isMedia;
         public final String fullPath;
         
-        public FMetadata(cloudType ct, String fName, String fsize, String lModified, Boolean isF, MediaInfo isM, String fPath) {
+        public FMetadata(cloudType ct, String fName, String fsize, String lModified, ObservableList<FMetadata> cList, MediaInfo isM, String fPath) {
             this.cloud = ct;
             this.fileName = fName;
             this.fileSize = fsize;
             this.lastModified = lModified;
-            this.isFolder = isF;
+            this.children = cList;
             this.isMedia = isM;
             this.fullPath = fPath;
         }

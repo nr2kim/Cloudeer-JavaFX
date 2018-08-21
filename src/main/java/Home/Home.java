@@ -6,6 +6,8 @@
 package Home;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 
@@ -27,8 +29,11 @@ public class Home extends VBox {
         this.getStylesheets().add("/css/main.css");
         
         HomeTab ht = new HomeTab();
-        TopPane tp = new TopPane(ht);
+        OptionalPane op = new OptionalPane(ht);
+        Pane wrapper = new Pane(ht, op);
         
-        this.getChildren().addAll(tp, ht);
+        TopPane tp = new TopPane(op);
+        
+        this.getChildren().addAll(tp, wrapper);
     }
 }
