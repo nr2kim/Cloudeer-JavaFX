@@ -59,6 +59,7 @@ public class SearchBar extends TextField {
         }
         
         if(md.fileName.toLowerCase().contains(str.toLowerCase())) {
+            System.out.println(md.fileName);
             result.add(md);
         }
     }
