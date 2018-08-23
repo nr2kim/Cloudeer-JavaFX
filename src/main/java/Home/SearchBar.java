@@ -6,13 +6,9 @@
 package Home;
 
 import Home.HomeTab.FMetadata;
-import Home.HomeTab.FileInfo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -21,31 +17,28 @@ import javafx.scene.input.MouseEvent;
 public class SearchBar extends TextField {
     public SearchBar(OptionalPane op, SearchResult sr) {
         super();
+        this.setEditable(true);
         this.getStyleClass().add("searchBar");
-        
-        this.setLayoutX(20);
-        this.setLayoutY(7);
-        this.setPrefHeight(25);
-        this.setPrefWidth(Home.homeScreen.getWidth()*0.7);
         
         this.textProperty().addListener((obj, oldVal, newVal) -> {
             System.out.println(newVal);
-            
-            if(!newVal.isEmpty()) {
-                ObservableList<FMetadata> result = FXCollections.observableArrayList();
-                for (int i = 0; i < HomeTab.allMetadata.size(); i++ ){ 
-                    ObservableList<FMetadata> tab = HomeTab.allMetadata.get(i);
-                    final int tabIndex = i;
-                    for(int j = 0; j < tab.size(); j++ ) {
-                        FMetadata md = tab.get(j);
-                        this.checkFolder(result, md, newVal);
-                    }
-                }
-                sr.showResult(result.size());
-                op.showOptionalPane(result);
-            } else {
-                op.hideOptionalPane();
-            }
+            op.showOptionalPane(FXCollections.observableArrayList());
+//            if(!newVal.isEmpty()) {
+//                ObservableList<FMetadata> result = FXCollections.observableArrayList();
+//                for (int i = 0; i < HomeTab.allMetadata.size(); i++ ){ 
+//                    ObservableList<FMetadata> tab = HomeTab.allMetadata.get(i);
+//                    final int tabIndex = i;
+//                    for(int j = 0; j < tab.size(); j++ ) {
+//                        FMetadata md = tab.get(j);
+//                        this.checkFolder(result, md, newVal);
+//                    }
+//                }
+//                sr.showResult(result.size());
+//                op.showOptionalPane(result);
+//            } else {
+//                op.hideOptionalPane();
+//                sr.hideResult();
+//            }
         });
     }
     

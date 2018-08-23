@@ -16,12 +16,12 @@
 <?import Home.CopyRight?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.*?>
-<fx:root fx:id="root" prefHeight="${screen.visualBounds.height/2}" minHeight="200" minWidth="200" prefWidth="${screen.visualBounds.width/2}" stylesheets="@../css/main.css" type="VBox" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root fx:id="root" prefHeight="${screen.visualBounds.height/2}" prefWidth="${screen.visualBounds.width/2}" stylesheets="@../css/main.css" type="VBox" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen" />
     </fx:define>
     <children>
-        <Home />
-        <CopyRight fx:id="copyRight" />
+        <Home prefHeight="${root.height-35}" prefWidth="${root.width}" />
+        <CopyRight fx:id="copyRight" prefWidth="${root.width}"/>
     </children>
 </fx:root>

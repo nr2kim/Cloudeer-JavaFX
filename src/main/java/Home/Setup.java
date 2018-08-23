@@ -22,6 +22,8 @@ public class Setup extends Application {
         Scene scene = new Scene(hl);
         primaryStage.setTitle("Cloudeer");
         primaryStage.setScene(scene);
+        primaryStage.setMinWidth(500);
+        primaryStage.setMinHeight(200);
         primaryStage.show();
     }
 

@@ -11,6 +11,12 @@
      -fx-background-color: aquamarine;
  }
  
+ .TopPane {
+     -fx-background-color: brown;
+ }
+ .op {
+     -fx-background-color:aquamarine;
+ }
  .searchBar {
      -fx-background-radius: 20px;
      -fx-padding: 0 0 0 40px;

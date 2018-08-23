@@ -63,16 +63,16 @@ public final class HomeTab extends TabPane {
         }
     }
     public HomeTab() {
-        this.setPrefHeight(Home.homeScreen.getHeight() - 40);
-        this.setPrefWidth(Home.homeScreen.getWidth());
-        this.tabClosingPolicyProperty().set(TabClosingPolicy.UNAVAILABLE);
+        this.tabClosingPolicyProperty().set(TabClosingPolicy.ALL_TABS);
         this.allTabData = FXCollections.observableArrayList();
         this.tabsCloud = FXCollections.observableArrayList();
         allMetadata = FXCollections.observableArrayList();
         Tab allTab = new Tab("All");
+        allTab.setClosable(false);
         this.setTable(allTab, this.allTabData);
 
         Tab plusTab = new Tab("+");
+        plusTab.setClosable(false);
         plusTab.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if(isNowSelected) {
                 this.getSelectionModel().selectFirst();
@@ -95,10 +95,10 @@ public final class HomeTab extends TabPane {
                             });
                             break;
                         case googleDrive:
-                            addTab(cloudType.googleDrive, null);
+                            addTab(cloudType.googleDrive, FXCollections.observableArrayList());
                             break;
                         case oneDrive:
-                            addTab(cloudType.oneDrive, null);
+                            addTab(cloudType.oneDrive, FXCollections.observableArrayList());
                             break;
                         default:
                             Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, buttonData);
@@ -138,7 +138,7 @@ public final class HomeTab extends TabPane {
         TableColumn fileDateCol = new TableColumn("Last Modified");
         
         fileNameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
-        fileNameCol.setMinWidth(300);
+        fileNameCol.setMinWidth(200);
         fileNameCol.maxWidthProperty().bind(table.widthProperty().subtract(fileSizeCol.minWidthProperty()).subtract(fileDateCol.minWidthProperty()));
         fileNameCol.setCellValueFactory(
                 new PropertyValueFactory<>("fileName"));
@@ -171,9 +171,11 @@ public final class HomeTab extends TabPane {
                 long diff = now.getTime() - lastClickTime.getTime();
                 if (event.isPrimaryButtonDown() && previousTarget == event.getTarget() && diff < 300) {
                     int rowIndex = table.getSelectionModel().getSelectedIndex();
-                    if (data.get(rowIndex).children != null) {
-                        ObservableList<FMetadata> allSubFiles = data.get(rowIndex).children;
-                        setTable(tab, allSubFiles);
+                    if (rowIndex >= 0) {
+                        if (data.get(rowIndex).children != null) {
+                            ObservableList<FMetadata> allSubFiles = data.get(rowIndex).children;
+                            setTable(tab, allSubFiles);
+                        }
                     }
                 } else if (event.isPrimaryButtonDown()) {
                     previousTarget = event.getTarget();
