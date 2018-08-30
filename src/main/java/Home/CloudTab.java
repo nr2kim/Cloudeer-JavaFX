@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Home;
 
 import SignIn.DropboxAuth;
@@ -30,11 +25,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 
-/**
- *
- * @author t_kimka
- */
-public final class HomeTab extends TabPane {
+public final class CloudTab extends TabPane {
     public SortedMap<cloudType, DbxAuthInfo> allClouds;
     public ObservableList<cloudType> tabsCloud;
     private DropboxAuth dropboxAuth;
@@ -62,7 +53,7 @@ public final class HomeTab extends TabPane {
             }
         }
     }
-    public HomeTab() {
+    public CloudTab() {
         this.tabClosingPolicyProperty().set(TabClosingPolicy.ALL_TABS);
         this.allTabData = FXCollections.observableArrayList();
         this.tabsCloud = FXCollections.observableArrayList();
@@ -101,7 +92,7 @@ public final class HomeTab extends TabPane {
                             addTab(cloudType.oneDrive, FXCollections.observableArrayList());
                             break;
                         default:
-                            Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, buttonData);
+                            Logger.getLogger(CloudTab.class.getName()).log(Level.SEVERE, null, buttonData);
                             System.exit(1);
                             break;
                     }

@@ -19,12 +19,13 @@
 *.tar.gz
 *.rar
 
-# Gradle
-.gradle
-.nb-gradle
-build
-gradle
-private/cache/retriever
+# Build
+build/
 
-.DS_Store
+# Netbeans
+.nb-gradle
+nbproject
+private
+
+# output
 out/

@@ -6,9 +6,9 @@ package SignIn;
  * and open the template in the editor.
  */
 
-import Home.HomeTab;
-import Home.HomeTab.FMetadata;
-import Home.HomeTab.cloudType;
+import Home.CloudTab;
+import Home.CloudTab.FMetadata;
+import Home.CloudTab.cloudType;
 import com.dropbox.core.DbxAppInfo;
 import com.dropbox.core.DbxAuthFinish;
 import com.dropbox.core.DbxAuthInfo;
@@ -69,7 +69,7 @@ public class DropboxAuth extends Dialog {
         try {
             appInfo = DbxAppInfo.Reader.readFromFile("env/dbx.env");
         } catch (JsonReader.FileLoadException ex) {
-            Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CloudTab.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1); return;
         }
         
@@ -88,7 +88,7 @@ public class DropboxAuth extends Dialog {
                 try {
                     Desktop.getDesktop().browse(new URI(authorizeUrl));
                 } catch (URISyntaxException | IOException ex) {
-                    Logger.getLogger(HomeTab.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(CloudTab.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });

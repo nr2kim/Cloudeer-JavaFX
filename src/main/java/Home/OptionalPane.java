@@ -1,28 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Home;
 
-import Home.HomeTab.FMetadata;
+import Home.CloudTab.FMetadata;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
 
-/**
- *
- * @author t_kimka
- */
 public class OptionalPane extends TabPane {
-    private HomeTab ht;
-    private TableView<HomeTab.FileInfo> searchResultTable;
+    private CloudTab ht;
+    private TableView<CloudTab.FileInfo> searchResultTable;
     public boolean isSearching = false;
-    public OptionalPane(HomeTab ht) {
+    public OptionalPane(CloudTab ht) {
         super();
         this.tabClosingPolicyProperty().set(TabClosingPolicy.ALL_TABS);
         Tab searchTab = new Tab("Search Result");
@@ -67,7 +57,7 @@ public class OptionalPane extends TabPane {
 
         data.forEach((md) -> {
             System.out.println(md.fileName);
-            HomeTab.FileInfo ri = new HomeTab.FileInfo(md.cloud, md.fileName, md.fileSize, md.lastModified);
+            CloudTab.FileInfo ri = new CloudTab.FileInfo(md.cloud, md.fileName, md.fileSize, md.lastModified);
             searchResultTable.getItems().add(ri);
         });
         searchResultTable.setEditable(false);

@@ -1,6 +1,6 @@
 package SignIn;
 
-import Home.HomeTab.cloudType;
+import Home.CloudTab.cloudType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

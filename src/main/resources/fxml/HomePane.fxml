@@ -12,7 +12,7 @@
 <?import javafx.stage.Screen?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import Home.Home?>
+<?import Home.HomeContent?>
 <?import Home.CopyRight?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.*?>
@@ -21,7 +21,7 @@
         <Screen fx:factory="getPrimary" fx:id="screen" />
     </fx:define>
     <children>
-        <Home prefHeight="${root.height-35}" prefWidth="${root.width}" />
+        <HomeContent prefHeight="${root.height-35}" prefWidth="${root.width}" />
         <CopyRight fx:id="copyRight" prefWidth="${root.width}"/>
     </children>
 </fx:root>
